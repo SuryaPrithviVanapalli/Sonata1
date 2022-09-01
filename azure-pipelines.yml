@@ -1,0 +1,44 @@
+
+trigger:
+- dev
+
+pool:
+  name: Azure Pipelines
+  vmImage: 'windows-latest'
+  demands:
+  - msbuild
+  - visualstudio
+
+steps:
+  - task: NuGetToolInstaller@0
+    displayName: 'Use NuGet 4.4.1'
+    inputs:
+      versionSpec: 4.4.1
+
+  - task: NuGetCommand@2
+    displayName: 'NuGet restore'
+    inputs:
+      restoreSolution: 'ZuoraCPQ.sln'
+
+  - task: VSBuild@1
+    displayName: 'Build solution'
+    inputs:
+      vsVersion: 'latest'
+
+  - task: VSTest@2
+    displayName: 'Unit Tests'
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'ZuoraCPQ.PluginsTests\bin\Debug\ZuoraCPQ.PluginsTests.dll'
+      searchFolder: '$(System.DefaultWorkingDirectory)'
+      distributionBatchType: basedOnExecutionTime
+      runInParallel: false
+
+  - task: VSTest@2
+    displayName: 'UI Tests'
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'ZuoraCPQ.UITests\bin\Debug\ZuoraCPQ.UITests.dll'
+      searchFolder: '$(System.DefaultWorkingDirectory)'
+      distributionBatchType: basedOnExecutionTime
+      runInParallel: false
